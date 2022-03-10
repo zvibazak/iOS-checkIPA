@@ -1,8 +1,8 @@
 # iOS IPA Validator #
 
-# originally by G. Gold, No longer maintained. 
+originally by G. Gold, No longer maintained. This tool is no longer maintained by Apperian. Feel free to take it and improve it, but we've moved on to other things and no longer have the time to keep this up to date.
 
-This tool is no longer maintained by Apperian. Feel free to take it and improve it, but we've moved on to other things and no longer have the time to keep this up to date.
+---
 
 I added support for Python3.
 
