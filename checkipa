@@ -575,8 +575,8 @@ class ParseIPA(object):
     plist_file_rx = re.compile(r'Payload/.+?\.app/Info.plist$')
     plist_misnamed_payload_file_rx = re.compile(r'payload/.+?\.app/Info.plist$')
     provision_file_rx = re.compile(r'\bembedded.mobileprovision$')
-    xml_rx = re.compile(r'<\??xml')
-    provision_xml_rx = re.compile(r'<\?xml.+</plist>', re.DOTALL)
+    xml_rx = re.compile(b'<\??xml')
+    provision_xml_rx = re.compile(b'<\?xml.+</plist>', re.DOTALL)
 
     def __init__(self, ipa_filename):
         self.info_plist_data = {}
@@ -618,7 +618,7 @@ class ParseIPA(object):
             match = ParseIPA.provision_xml_rx.search(content)
             if (match is not None):
                 provision_xml_content = match.group()
-                data = plistlib.readPlistFromString(provision_xml_content)
+                data = plistlib.loads(provision_xml_content)
             else:
                 self.errors.append('unable to parse embedded.mobileprovision file')
 
@@ -639,7 +639,7 @@ class ParseIPA(object):
         else:
             content = zip_obj.read(plist_filename)
             if (ParseIPA.xml_rx.match(content)):
-                data = plistlib.readPlistFromString(content)
+                data = plistlib.loads(content)
             else:
                 self.temp_directory = tempfile.mkdtemp()
 
@@ -648,9 +648,9 @@ class ParseIPA(object):
 
                 os_info = os.uname()
                 if os_info[0] == 'Linux':
-                    cmd = 'plutil -i "%s" -o "%s"' % (fullpath_plist, fullpath_plist)
+                    cmd = 'plistutil -i "%s" -o "%s"' % (fullpath_plist, fullpath_plist)
                 else:
-                    cmd = 'plutil -convert xml1 "%s"' % (fullpath_plist)
+                    cmd = 'plistutil -convert xml1 "%s"' % (fullpath_plist)
 
                 pprint(cmd)
 
@@ -730,7 +730,7 @@ def process_ipa(params):
         try:
             if parse.temp_directory != '':
                 shutil.rmtree(parse.temp_directory)
-        except IOError, ex:
+        except (IOError, ex):
             print(str(ex))
 
     else:
@@ -774,11 +774,11 @@ def main():
         if not parse.is_valid_zip_archive():
             errors.append('not a valid zip archive [%s]' % (ipa_filename))
 
-        # Mac OS already should have the plutil command utility installed.
+        # Mac OS already should have the plistutil command utility installed.
         # The following message is primarily for (Debian-based) Linux systems.
-        retval = os.system('which plutil >/dev/null')
+        retval = os.system('which plistutil >/dev/null')
         if retval != 0:
-            msg = "The program 'plutil' is currently not installed. You can install it by typing:\n"
+            msg = "The program 'plistutil' is currently not installed. You can install it by typing:\n"
             msg += '           sudo apt-get install libplist-utils'
             errors.append(msg)
 
